@@ -10,4 +10,14 @@ class Family extends Model
     protected $table = 'family'; 
     
     use HasFactory;
+    
+    protected $fillable = [
+        'family_username',
+    ];
+
+    public function users()
+    {
+        // previously was hasMany(UserFamilyLink::class);
+        return $this->belongsToMany(UserFamilyLink::class);
+    }   
 }

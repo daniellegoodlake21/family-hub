@@ -35,6 +35,9 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('families.index')" :active="route().current('families.index')">
                                     Families
                                 </NavLink>
+                                <NavLink :href="route('family_search.index')" :active="route().current('family_search.index')">
+                                    Family Search
+                                </NavLink>
                             </div>
 
                         </div>
@@ -121,6 +124,9 @@ const showingNavigationDropdown = ref(false);
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('families.index')" :active="route().current('families.index')">
                             Families
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('family_search.index')" :active="route().current('family_search.index')">
+                            Family Search
                         </ResponsiveNavLink>
                     </div>
 

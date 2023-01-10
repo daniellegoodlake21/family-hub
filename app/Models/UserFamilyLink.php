@@ -23,4 +23,15 @@ class UserFamilyLink extends Model
     {
         return $this->belongsTo(Family::class);
     }
+    public function create()
+    {
+        $userFamilyLinkInput = Request::all();
+        UserFamilyLink::create($userFamilyLinkInput);
+        $familyInput = [Request::get('family_username')];
+        Family::create($familyInput);
+    }
+    public function membership()
+    {
+        return $this->belongsToMany(Family::class);
+    }
 }

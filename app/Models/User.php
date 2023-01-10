@@ -46,4 +46,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserFamilyLink::class);
     }
+    public function families()
+    {
+        return $this->belongsToMany(Family::class);
+    }
 }

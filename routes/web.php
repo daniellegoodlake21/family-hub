@@ -5,7 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\UserFamilyLinkController;
-
+use App\Http\Controllers\FamilySearchController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -31,8 +31,16 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::resource('families', UserFamilyLinkController::class)
-->only(['index', 'store', 'update', 'delete'])
+->only(['index', 'store', 'update', 'destroy'])
 ->middleware(['auth', 'verified']);
+
+
+Route::get('family_search', [FamilySearchController::class, 'filter'])->name('filter');
+
+Route::resource('family_search', FamilySearchController::class)
+->only(['index', 'store'])
+->middleware(['auth', 'verified']);
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

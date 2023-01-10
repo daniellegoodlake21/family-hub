@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 use Inertia\Inertia;
-use App\Models\UserFamilyLink;
-use App\Models\Family;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Request as Request2;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Family;
+use DB;
 
-class UserFamilyLinkController extends Controller
+class FamilySearchController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,11 +17,20 @@ class UserFamilyLinkController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Families/Index', [
-            'families' => UserFamilyLink::where('user_id', Auth::id())->with('user:id,name')->latest()->get()->where('status', '!=', 'Pending Admin Approval'),
-            'pending_families' => UserFamilyLink::where('user_id', Auth::id())->with('user:id,name')->latest()->get()->where('status', '=', 'Pending Admin Approval')
+        $userFamilies = Auth::user()->userFamilies();
+        $userFamilyNames = $userFamilies->select('family_username');
+        $search = Request2::input('search');
+        $result = Inertia::render('Families/FamilySearchResult', [
+            'families' =>   Family::where('family.family_username', 'like', '%' . $search . '%')->whereNotIn('family_username', $userFamilyNames)
+        ->orderBy('family_username')
+        ->paginate(5)
+        ->withQueryString(),
+        'filters' => Request2::only(['search'])
         ]);
+        return $result;
     }
+
+    
     /**
      * Show the form for creating a new resource.
      *
@@ -37,31 +47,23 @@ class UserFamilyLinkController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'family_username' => 'required|string|max:40|unique:family',
+            'family_username' => 'required|string|max:40|exists:family',
             'status' => 'string|required'
         ]);
         $request->user()->userFamilies()->create($validated); // inserts into the user_family_link table
-        $familyExists = Family::where('family_username', $request->family_userame)->exists();
-        if (!$familyExists && $validated)
-        {
-            $family = new Family;
-            $family->family_username = $request->family_username;
-            $family->save(); // if the family does not already exist, inserts into the family table
-        }
         return redirect(route('families.index'));
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\UserFamilyLink  $userFamilyLink
+     * @param  \App\Models\FamilySearchController  $familySearchController
      * @return \Illuminate\Http\Response
      */
-    public function show(UserFamilyLink $userFamilyLink)
+    public function show(FamilySearchController $familySearchController)
     {
         //
     }
@@ -69,10 +71,10 @@ class UserFamilyLinkController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\UserFamilyLink  $userFamilyLink
+     * @param  \App\Models\FamilySearchController  $familySearchController
      * @return \Illuminate\Http\Response
      */
-    public function edit(UserFamilyLink $userFamilyLink)
+    public function edit(FamilySearchController $familySearchController)
     {
         //
     }
@@ -81,10 +83,10 @@ class UserFamilyLinkController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\UserFamilyLink  $userFamilyLink
+     * @param  \App\Models\FamilySearchController  $familySearchController
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, UserFamilyLink $userFamilyLink)
+    public function update(Request $request, FamilySearchController $familySearchController)
     {
         //
     }
@@ -92,10 +94,10 @@ class UserFamilyLinkController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\UserFamilyLink  $userFamilyLink
+     * @param  \App\Models\FamilySearchController  $familySearchController
      * @return \Illuminate\Http\Response
      */
-    public function destroy(UserFamilyLink $userFamilyLink)
+    public function destroy(FamilySearchController $familySearchController)
     {
         //
     }
