@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Request as Request2;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Family;
-use DB;
 
 class FamilySearchController extends Controller
 {
@@ -21,7 +20,7 @@ class FamilySearchController extends Controller
         $userFamilyNames = $userFamilies->select('family_username');
         $search = Request2::input('search');
         $result = Inertia::render('Families/FamilySearchResult', [
-            'families' =>   Family::where('family.family_username', 'like', '%' . $search . '%')->whereNotIn('family_username', $userFamilyNames)
+            'families' => Family::where('family.family_username', 'like', '%' . $search . '%')->whereNotIn('family_username', $userFamilyNames)
         ->orderBy('family_username')
         ->paginate(5)
         ->withQueryString(),

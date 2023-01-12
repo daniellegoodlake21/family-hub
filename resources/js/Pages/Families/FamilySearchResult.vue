@@ -40,6 +40,7 @@ function joinFamily(familyUsername)
 {
     //  Assign family username to joinForm
     joinForm.family_username = familyUsername;
+    joinForm.status = "Pending Admin Approval";
     joinForm.post(route('family_search.store'), {onSuccess: () => joinForm.reset()});
 }
 </script>
@@ -76,9 +77,8 @@ function joinFamily(familyUsername)
                                 {{ new Date(family.created_at).toLocaleString() }}
                             </td>
                             <td scope="row" class="px-6 py-4 text-md">
-                                <input type="hidden" v-model="family.family_username" class="form-control family-username">
-                                <input type="hidden" v-model="joinForm.status" id="status" class="form-control">
-                                <PrimaryButton v-on:click="joinFamily(family.family_username)" class="mt-4 join-family-button">Request to Join</PrimaryButton>
+                                <input type="hidden" name="status" id="status" v-model="joinForm.status"/>
+                                <PrimaryButton v-on:click="joinFamily(family.family_username)" class="mt-4">Request to Join</PrimaryButton>
                             </td>
                         </tr>
                     </tbody>

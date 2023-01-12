@@ -13,6 +13,7 @@ class Family extends Model
     
     protected $fillable = [
         'family_username',
+        'admin_id'
     ];
 
     public function users()

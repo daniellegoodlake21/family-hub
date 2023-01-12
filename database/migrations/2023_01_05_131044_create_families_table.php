@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('family', function (Blueprint $table) {
             $table->string('family_username')->primary();
+            $table->integer('admin_id');
             $table->timestamps();
         });
     }

@@ -27,7 +27,7 @@ class UserFamilyLink extends Model
     {
         $userFamilyLinkInput = Request::all();
         UserFamilyLink::create($userFamilyLinkInput);
-        $familyInput = [Request::get('family_username')];
+        $familyInput = [Request::get('family_username'), 'admin_id' => Auth::id()];
         Family::create($familyInput);
     }
     public function membership()
