@@ -6,7 +6,7 @@ import {useForm, Head} from '@inertiajs/inertia-vue3';
 import { ref } from 'vue';
 import { Inertia } from '@inertiajs/inertia';
 import { watch } from 'vue';
-
+import Pagination from '@/Components/Pagination.vue';
 const form = useForm({
     family_username: '',
 });
@@ -59,7 +59,7 @@ function joinFamily(familyUsername)
         </div>
         <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
             <h2 class="text-lg mx-auto">Available Family Groups</h2>
-            <div v-if='families.data.length > 0' class="mt-1 divide-y">
+            <div v-if='families.data.length > 0' class="mt-1">
                 <table class="w-full text-sm text-center">
                     <thead class="text-md uppercase bg-blue-50 dark:bg-blue-700">
                         <tr>
@@ -83,12 +83,12 @@ function joinFamily(familyUsername)
                         </tr>
                     </tbody>
                 </table>
+                <Pagination :data="families"/>
             </div>
+
             <div v-else class="mt-1 divide-y">
                 <p class="text-gray-400">There are no Family Groups matching your search.</p>
             </div>
-        </div>
-        <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
         </div>
     </AuthenticatedLayout>
 </template>

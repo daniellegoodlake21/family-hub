@@ -35,8 +35,6 @@ Route::resource('families', UserFamilyLinkController::class)
 ->middleware(['auth', 'verified']);
 
 
-Route::get('family_search', [FamilySearchController::class, 'filter'])->name('filter');
-
 Route::resource('family_search', FamilySearchController::class)
 ->only(['index', 'store'])
 ->middleware(['auth', 'verified']);

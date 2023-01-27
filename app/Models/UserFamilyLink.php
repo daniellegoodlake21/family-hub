@@ -10,10 +10,11 @@ class UserFamilyLink extends Model
     use HasFactory;
     
     protected $table = 'user_family_link'; 
-    
+
     protected $fillable = [
         'family_username',
-        'status'
+        'status',
+        'user_id'
     ];
     public function user()
     {
@@ -30,8 +31,5 @@ class UserFamilyLink extends Model
         $familyInput = [Request::get('family_username'), 'admin_id' => Auth::id()];
         Family::create($familyInput);
     }
-    public function membership()
-    {
-        return $this->belongsToMany(Family::class);
-    }
+
 }

@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use App\Models\UserFamilyLink;
 use App\Models\Family;
+use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Requests\UserFamilyLinkRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request as Request2;
-use DB;
 
 class UserFamilyLinkController extends Controller
 {
@@ -18,14 +19,15 @@ class UserFamilyLinkController extends Controller
      */
     public function index()
     {   
-        $pending = "Pending Admin Approval";
-        // get all 'user_family_link' records associated with this user
-        $userFamilies = UserFamilyLink::where('user_id', Auth::id())->with('user:id,name')->latest()->get();
+        $pending = 'Pending Admin Approval';
+        // get all 'user_family_link' records associated with this user and split them into two categories based on status: Pending and Joined (note that Joined is anything other than pending, so it can either be 'Joined' or 'Admin')
+        $userJoinedFamilies = UserFamilyLink::with('user:id,name')->where('user_id', Auth::id())->where('status', '!=', $pending)->paginate(3);
+        $userPendingFamilies = UserFamilyLink::with('user:id,name')->where('user_id', Auth::id())->where('status', '=', $pending)->paginate(3);
         // get all pending requests from other users
         $pendingRequests = UserFamilyLink::with('user:id,name')->where('status', '=', $pending);
-        $otherUsersPendingRequests = $pendingRequests->where('user_id', '!=', Auth::id())->latest()->get(); 
+        $otherUsersPendingRequests = $pendingRequests->where('user_id', '!=', Auth::id()); 
         // gets the families from the 'family' table which have the current user set as the Admin
-        $adminFamilies = Family::where('admin_id', '=', Auth::id())->latest()->get();
+        $adminFamilies = Family::where('admin_id', '=', Auth::id());
         // create an array of all the family usernames from the families for which the current user is the Admin
         $familiesUserIsAdminAndRequested = [];
         foreach ($adminFamilies as $adminFamily)
@@ -33,11 +35,10 @@ class UserFamilyLinkController extends Controller
             $familiesUserIsAdminAndRequested[] = $adminFamily->family_username;
         }
         // get final set of relevant pending requests
-        $relevantPendingRequests = $otherUsersPendingRequests->whereIn('family_username', $familiesUserIsAdminAndRequested); 
-        
+        $relevantPendingRequests = $otherUsersPendingRequests->whereIn('family_username', $familiesUserIsAdminAndRequested)->paginate(3);
         $result = Inertia::render('Families/Index', [
-            'families' => $userFamilies->where('status', '!=', $pending),
-            'pending_families' => $userFamilies->where('status', '=', $pending),
+            'families' => $userJoinedFamilies,
+            'pending_families' => $userPendingFamilies,
             'pending_family_join_requests' => $relevantPendingRequests
         ]);
         return $result;
@@ -55,16 +56,17 @@ class UserFamilyLinkController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request; $request
      * @return \Illuminate\Http\Response
      */
 
     public function store(Request $request)
-    {;
+    {
         $validated = $request->validate([
-            'family_username' => 'required|string|max:40|unique:family',
-            'status' => 'string|required'
-        ]);
+                'family_username' => 'required|string|max:40|unique:family',
+                'status' => 'string|required'
+            ]
+        );
         $request->user()->userFamilies()->create($validated); // inserts into the user_family_link table
         $familyExists = Family::where('family_username', $request->family_userame)->exists();
         if (!$familyExists && $validated)
@@ -102,13 +104,19 @@ class UserFamilyLinkController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\UserFamilyLinkRequest $request
      * @param  \App\Models\UserFamilyLink  $userFamilyLink
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, UserFamilyLink $userFamilyLink)
+    public function update(UserFamilyLinkRequest $request, UserFamilyLink $family)
     {
-        //
+            // REMOVE THE COMMENT BELOW WHEN NO LONGER NEEDED FOR NOTIFICATIONS
+            //->with('message', 'You denied ' . $requester . ' entry to the ' . $userFamilyLink->family_username . ' Family Group.');
+            $family->status = $request->status;
+            $validated = $request->validated();
+            $family->update($validated);
+            return redirect(route('families.index'));
+            
     }
 
     /**
@@ -117,8 +125,9 @@ class UserFamilyLinkController extends Controller
      * @param  \App\Models\UserFamilyLink  $userFamilyLink
      * @return \Illuminate\Http\Response
      */
-    public function destroy(UserFamilyLink $userFamilyLink)
+    public function destroy(UserFamilyLink $family)
     {
-        //
+        $family->delete();
+        return redirect(route('families.index'));
     }
 }

@@ -19,7 +19,7 @@ class FamilySearchController extends Controller
         $userFamilies = Auth::user()->userFamilies();
         $userFamilyNames = $userFamilies->select('family_username');
         $search = Request2::input('search');
-        $result = Inertia::render('Families/FamilySearchResult', [
+        $result = Inertia::render('Families/FamilySearch', [
             'families' => Family::where('family.family_username', 'like', '%' . $search . '%')->whereNotIn('family_username', $userFamilyNames)
         ->orderBy('family_username')
         ->paginate(5)
