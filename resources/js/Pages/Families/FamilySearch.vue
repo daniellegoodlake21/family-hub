@@ -21,11 +21,6 @@ const props = defineProps(
             type: Object,
             default: () => ({}),
         },
-        pending_families: 
-        {
-            type: Object,
-            default: () => ({}),
-        }
     }
 )
 var search = ref('');

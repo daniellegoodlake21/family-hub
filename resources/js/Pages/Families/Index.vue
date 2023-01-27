@@ -10,7 +10,25 @@ const form = useForm({
     family_username: '',
     status: 'Admin'
 });
-defineProps(['families', 'pending_families', 'pending_family_join_requests']);
+const props = defineProps(
+    {
+        families:
+        {
+            type: Object,
+            default: () => ({}),
+        },
+        pending_families: 
+        {
+            type: Object,
+            default: () => ({}),
+        },
+        pending_family_join_requests:
+        {
+            type: Object,
+            default: () => ({}),
+        }
+    }
+);
 </script>
 <template>
     <Head title="My Families"/>
@@ -35,9 +53,9 @@ defineProps(['families', 'pending_families', 'pending_family_join_requests']);
         <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
             <!--List families the user is a member of (or has requested to join)-->
             <h2 class="text-lg mx-auto">My Joined Families</h2>
-            <div v-if="families.length > 0" class="mt-1 bg-white shadow-sm rounded-lg divide-y">
+            <div v-if="families.data.length > 0" class="mt-1 bg-white shadow-sm rounded-lg divide-y">
                 <UserFamily
-                    v-for="userFamily in families"
+                    v-for="userFamily in families.data"
                     :family_username="userFamily.family_username"
                     :status="userFamily.status"
                     :userFamily="userFamily"
@@ -52,9 +70,9 @@ defineProps(['families', 'pending_families', 'pending_family_join_requests']);
         <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
             <!--List families the user is a member of (or has requested to join)-->
             <h2 class="text-lg mx-auto">Pending Family Groups</h2>
-            <div v-if="pending_families.length > 0" class="mt-1 bg-white shadow-sm rounded-lg divide-y">
+            <div v-if="pending_families.data.length > 0" class="mt-1 bg-white shadow-sm rounded-lg divide-y">
                 <UserFamily
-                    v-for="userFamily in pending_families"
+                    v-for="userFamily in pending_families.data"
                     :family_username="userFamily.family_username"
                     :status="userFamily.status"
                     :userFamily="userFamily"
@@ -70,9 +88,9 @@ defineProps(['families', 'pending_families', 'pending_family_join_requests']);
                 <h2 class="text-lg mx-auto">Join Requests</h2>
                 <p class="text-gray-400">If you are an admin of a Family Group and someone requests to join, their request will appear here.</p>
                 <!--List pending join requests where the user is the Admin of the group-->
-                <div v-if="pending_family_join_requests.length > 0" class="mt-1 bg-white shadow-sm rounded-lg divide-y">
+                <div v-if="pending_family_join_requests.data.length > 0" class="mt-1 bg-white shadow-sm rounded-lg divide-y">
                     <PendingFamilyRequest
-                        v-for="pendingJoin in pending_family_join_requests"
+                        v-for="pendingJoin in pending_family_join_requests.data"
                         :family_username="pendingJoin.family_username"
                         :user_id="pendingJoin.user_id"
                         :pendingJoin="pendingJoin"

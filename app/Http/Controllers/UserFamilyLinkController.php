@@ -26,13 +26,15 @@ class UserFamilyLinkController extends Controller
         // get all pending requests from other users
         $pendingRequests = UserFamilyLink::with('user:id,name')->where('status', '=', $pending);
         $otherUsersPendingRequests = $pendingRequests->where('user_id', '!=', Auth::id()); 
-        // gets the families from the 'family' table which have the current user set as the Admin
-        $adminFamilies = Family::where('admin_id', '=', Auth::id());
         // create an array of all the family usernames from the families for which the current user is the Admin
-        $familiesUserIsAdminAndRequested = [];
-        foreach ($adminFamilies as $adminFamily)
+        $adminFamilyUsernames = [];
+        foreach ($userJoinedFamilies as $userJoinedFamily)
         {
-            $familiesUserIsAdminAndRequested[] = $adminFamily->family_username;
+            if ($userJoinedFamily->user_id == Auth::id())
+            {
+
+                $familiesUserIsAdminAndRequested[] = $userJoinedFamily->family_username;
+            }
         }
         // get final set of relevant pending requests
         $relevantPendingRequests = $otherUsersPendingRequests->whereIn('family_username', $familiesUserIsAdminAndRequested)->paginate(3);
