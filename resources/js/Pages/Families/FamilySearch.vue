@@ -37,7 +37,7 @@ function joinFamily(familyUsername)
     joinForm.family_username = familyUsername;
     joinForm.status = "Pending Admin Approval";
     joinForm.post(route('family_search.store'), {onSuccess: () => joinForm.reset()});
-}
+};
 </script>
 <template>
     <Head title="Family Search Results"/>

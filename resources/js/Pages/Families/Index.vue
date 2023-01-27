@@ -15,7 +15,7 @@ const props = defineProps(
         families:
         {
             type: Object,
-            default: () => ({}),
+            default: () => ({family_username: ''}),
         },
         pending_families: 
         {
@@ -29,6 +29,10 @@ const props = defineProps(
         }
     }
 );
+function deleteFamilyLink(request)
+{
+    form.delete(route('families.destroy', request.id));
+}
 </script>
 <template>
     <Head title="My Families"/>
@@ -51,16 +55,21 @@ const props = defineProps(
             </form>
         </div>
         <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
-            <!--List families the user is a member of (or has requested to join)-->
+            <!--List families the user is a member of-->
             <h2 class="text-lg mx-auto">My Joined Families</h2>
-            <div v-if="families.data.length > 0" class="mt-1 bg-white shadow-sm rounded-lg divide-y">
+            <div v-for="userFamily in families.data" v-if="families.data.length > 0" class="mt-1 bg-white shadow-sm rounded-lg">
                 <UserFamily
-                    v-for="userFamily in families.data"
                     :family_username="userFamily.family_username"
                     :status="userFamily.status"
                     :userFamily="userFamily"
                 />
-                <Pagination :data="families"/>
+                    <div v-if="userFamily.status == 'Admin'">
+                        <PrimaryButton v-on:click="deleteFamilyLink(userFamily)" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-4 py-2 text-center ml-4 mt-1">Delete</PrimaryButton>
+                        <p class="text-gray-400 mt-4 ml-4">This will delete the family for all members.</p>
+                    </div>
+                  <PrimaryButton v-else v-on:click="deleteFamilyLink(userFamily)" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-4 py-2 text-center ml-2 mb-2">Leave</PrimaryButton>
+
+               <Pagination :data="families"/>
             </div>
             
             <div v-else class="mt-1 divide-y">
@@ -68,7 +77,7 @@ const props = defineProps(
             </div>
         </div>
         <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
-            <!--List families the user is a member of (or has requested to join)-->
+            <!--List families the user has requested to join-->
             <h2 class="text-lg mx-auto">Pending Family Groups</h2>
             <div v-if="pending_families.data.length > 0" class="mt-1 bg-white shadow-sm rounded-lg divide-y">
                 <UserFamily
@@ -77,7 +86,9 @@ const props = defineProps(
                     :status="userFamily.status"
                     :userFamily="userFamily"
                 />
+                <PrimaryButton v-for="userFamily in pending_families.data" v-on:click="deleteFamilyLink(userFamily)" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-4 py-2 text-center ml-2 mb-2">Cancel Request</PrimaryButton>
                 <Pagination :data="pending_families"/>
+               
             </div>
             <div v-else class="mt-1 divide-y">
                 <p class="text-gray-400">You have no Pending Family Groups.</p>

@@ -33,11 +33,11 @@ class UserFamilyLinkController extends Controller
             if ($userJoinedFamily->user_id == Auth::id())
             {
 
-                $familiesUserIsAdminAndRequested[] = $userJoinedFamily->family_username;
+                $adminFamilyUsernames[] = $userJoinedFamily->family_username;
             }
         }
         // get final set of relevant pending requests
-        $relevantPendingRequests = $otherUsersPendingRequests->whereIn('family_username', $familiesUserIsAdminAndRequested)->paginate(3);
+        $relevantPendingRequests = $otherUsersPendingRequests->whereIn('family_username', $adminFamilyUsernames)->paginate(3);
         $result = Inertia::render('Families/Index', [
             'families' => $userJoinedFamilies,
             'pending_families' => $userPendingFamilies,
@@ -70,7 +70,7 @@ class UserFamilyLinkController extends Controller
             ]
         );
         $request->user()->userFamilies()->create($validated); // inserts into the user_family_link table
-        $familyExists = Family::where('family_username', $request->family_userame)->exists();
+        $familyExists = Family::where('family_username', $request->family_username)->exists();
         if (!$familyExists && $validated)
         {
             $family = new Family;
@@ -107,13 +107,11 @@ class UserFamilyLinkController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \App\Http\Requests\UserFamilyLinkRequest $request
-     * @param  \App\Models\UserFamilyLink  $userFamilyLink
+     * @param  \App\Models\UserFamilyLink  $family
      * @return \Illuminate\Http\Response
      */
     public function update(UserFamilyLinkRequest $request, UserFamilyLink $family)
     {
-            // REMOVE THE COMMENT BELOW WHEN NO LONGER NEEDED FOR NOTIFICATIONS
-            //->with('message', 'You denied ' . $requester . ' entry to the ' . $userFamilyLink->family_username . ' Family Group.');
             $family->status = $request->status;
             $validated = $request->validated();
             $family->update($validated);
@@ -124,12 +122,17 @@ class UserFamilyLinkController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\UserFamilyLink  $userFamilyLink
+     * @param  \App\Models\UserFamilyLink  $family
      * @return \Illuminate\Http\Response
      */
     public function destroy(UserFamilyLink $family)
     {
         $family->delete();
+        if ($family->status == 'Admin')
+        {
+            $familyGroup = Family::where("family_username", $family->family_username);
+            $familyGroup->delete();
+        }
         return redirect(route('families.index'));
     }
 }
