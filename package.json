@@ -23,6 +23,7 @@
         "vue": "^3.2.37"
     },
     "dependencies": {
+        "cacheable-request": "^10.2.7",
         "jquery": "^3.6.3",
         "laravel-vue": "^1.0.0",
         "laravel-vue-pagination": "^4.0.0",

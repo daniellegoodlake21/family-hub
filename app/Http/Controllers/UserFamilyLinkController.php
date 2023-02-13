@@ -112,11 +112,19 @@ class UserFamilyLinkController extends Controller
      */
     public function update(UserFamilyLinkRequest $request, UserFamilyLink $family)
     {
-            $family->status = $request->status;
-            $validated = $request->validated();
-            $family->update($validated);
+           
+            if ($family->selected != $request->selected)
+            {
+                Family::where('selected', true)->update(['selected', false]); // de-select all other families
+                $family->update(['selected', true]);// select this family
+            }
+            else if ($family->status != $request->status)
+            {
+                $family->status = $request->status;
+                $validated = $request->validated();
+                $family->update($validated);
+            }
             return redirect(route('families.index'));
-            
     }
 
     /**

@@ -33,6 +33,13 @@ function deleteFamilyLink(request)
 {
     form.delete(route('families.destroy', request.id));
 }
+function switchToFamily(request)
+{
+    form.family_username = request.family_username;
+    request.selected = true;
+    form.patch(route('families.update', request.id));
+    form.family_username = '';
+}
 </script>
 <template>
     <Head title="My Families"/>
@@ -57,18 +64,28 @@ function deleteFamilyLink(request)
         <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
             <!--List families the user is a member of-->
             <h2 class="text-lg mx-auto">My Joined Families</h2>
-            <div v-for="userFamily in families.data" v-if="families.data.length > 0" class="mt-1 bg-white shadow-sm rounded-lg">
+            <div v-for="userFamily in families.data" v-if="families.data.length > 0" class="bg-white shadow-sm rounded-lg">
                 <UserFamily
                     :family_username="userFamily.family_username"
                     :status="userFamily.status"
                     :userFamily="userFamily"
+                    :selected="userFamily.selected"
                 />
-                    <div v-if="userFamily.status == 'Admin'">
-                        <PrimaryButton v-on:click="deleteFamilyLink(userFamily)" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-4 py-2 text-center ml-4 mt-1">Delete</PrimaryButton>
-                        <p class="text-gray-400 mt-4 ml-4">This will delete the family for all members.</p>
+                <div v-if="userFamily.status == 'Admin'" class="m-4 p-4">
+                    <PrimaryButton v-on:click="deleteFamilyLink(userFamily)" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-4 py-2 text-center">Delete</PrimaryButton>
+                    <span class="text-gray-400 ml-4">This will delete the family for all members.</span>
+                </div>
+                <div v-else class="m-4 p-4">
+                    <PrimaryButton v-on:click="deleteFamilyLink(userFamily)" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-4 py-2 text-center">Leave</PrimaryButton>
+                </div>
+                    <div v-if="!userFamily.selected" class="m-4 p-4">
+                            <PrimaryButton v-on:click="switchToFamily(userFamily)" class="text-white bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-gold-800 font-medium rounded-lg text-sm text-center">Select</PrimaryButton>
+                            <span class="text-gray-400 ml-4">Switch to this Family Group.</span>
                     </div>
-                  <PrimaryButton v-else v-on:click="deleteFamilyLink(userFamily)" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-4 py-2 text-center ml-2 mb-2">Leave</PrimaryButton>
-
+                    <div v-else class="m-4 p-4">
+                    <p class="text-gray-400">Currently Active</p>
+                </div>
+                
                <Pagination :data="families"/>
             </div>
             
@@ -86,11 +103,11 @@ function deleteFamilyLink(request)
                     :status="userFamily.status"
                     :userFamily="userFamily"
                 />
-                <PrimaryButton v-for="userFamily in pending_families.data" v-on:click="deleteFamilyLink(userFamily)" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-4 py-2 text-center ml-2 mb-2">Cancel Request</PrimaryButton>
+                <PrimaryButton v-for="userFamily in pending_families.data" v-on:click="deleteFamilyLink(userFamily)" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-4 py-2 text-center m-4 p-4">Cancel Request</PrimaryButton>
                 <Pagination :data="pending_families"/>
                
             </div>
-            <div v-else class="mt-1 divide-y">
+            <div v-else class="divide-y">
                 <p class="text-gray-400">You have no Pending Family Groups.</p>
             </div>
         </div>

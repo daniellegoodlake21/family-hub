@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('family_username')->foreignId('family')->constrained()->cascadeOnDelete();
             $table->string('status');
+            $table->boolean('selected')->default(false);
             $table->timestamps();
         });
     }
