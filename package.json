@@ -24,6 +24,8 @@
     },
     "dependencies": {
         "cacheable-request": "^10.2.7",
+        "http-cache": "^0.3.1",
+        "http-cache-semantics": "^4.1.1",
         "jquery": "^3.6.3",
         "laravel-vue": "^1.0.0",
         "laravel-vue-pagination": "^4.0.0",
